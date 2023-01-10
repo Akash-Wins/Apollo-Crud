@@ -6,9 +6,6 @@ import UserStore from "../../services/user/user.store";
 class PostServices implements IPostServices.IPostServiceAPI {
   private userStore = new UserStore();
   private postStore = new PostStore();
-  private postStore1 = new TextPostDb();
-  private imageStore = new ImagePostDb();
-  private videoStore = new VideoPostDb();
   private proxy: IAppServiceProxy;
   constructor(proxy: IAppServiceProxy) {
     this.proxy = proxy;
@@ -87,88 +84,107 @@ class PostServices implements IPostServices.IPostServiceAPI {
   }
 
   async updatePost(request: any) {
-    const user = await this.userStore.findOneData({ _id: request.userId });
-
-  if(user.roles=="editor1"){
-    console.log("lol")
-    const postuserId=request.id
-    console.log(postuserId)
-    
-    const findRoles= await this.postStore.findtxtdbdata({_id:postuserId})
-    console.log(findRoles)
-    
-    if(findRoles.userId != request.userId){
-      console.log("eerorrr")
-      return "you can't update data";
+    try{
+      const userFind = await this.userStore.findOneData({ _id: request.userId });
+      const postData = await this.postStore.findOneData({ id: request.id });
+    // if(user.roles=="editor1"){
+    //   console.log("lol")
+    //   const postuserId=request.id
+    //   console.log(postuserId)
       
-    }
-  }
-  console.log("working")
-    const postStatus = request.status;
-    const postType = request.type;
-  
-    const postArgs = {
-      type: postType,
-      status: postStatus,
-    };
-    const data = await this.postStore.findOneDataAndUpdate(
-      {
-        _id: request.id,
-        type: request.type,
-        status: request.status,
-      },
-      { new: true }
-    );
-
-    switch (postType) {
-      case "text":
-        try {
-          const textArgs = {
-            title: request.fields.title,
-            description: request.fields.description,
-          };
-  
-          const user = await this.postStore.findtxtdbdata({ postId: data._id });
-          const updateTextPost = await this.postStore.textPostUpd(user._id,textArgs);
-          break;
-        } catch (error) {
-          throw new Error("oops somthing went wrong while saving text");
-        }
-
-      case "image":
-        try {
-          const imgArgs = {
-            title: request?.fields.title,
-            description: request?.fields.description,
-            imgUrl: request?.fields.imgUrl,
-          };
-          const user = await this.postStore.findimagedbdata({ postId: data._id });
-          const updateTextPost = await this.postStore.imagePostUpd(user._id,imgArgs);
-          break;
-        } catch (error) {
-          throw new Error("oops somthing went wrong while saving image");
-        }
+    //   const findRoles= await this.postStore.findtxtdbdata({_id:postuserId})
+    //   console.log(findRoles)
+      
+    //   if(findRoles.userId != request.userId){
+    //     console.log("eerorrr")
+    //     return "you can't update data";
         
-      case "video":
-        try {
-          const videoArgs = {
-            title: request.fields.title,
-            description: request.fields.description,
-            videoUrl: request.fields.videoUrl,
-            videoType: request.fields.videoType,
-          };
-          const user = await this.postStore.findvideodbdata({ postId: data._id });
-          const updateTextPost = await this.postStore.videoPostUpd(user._id,videoArgs);
-          break;
-        } catch (error) {
-          throw new Error("oops somthing went wrong while saving video");
+    //   }
+    // }
+    if (userFind.roles != "admin") {
+      if (userFind.roles == "editor1") {
+        if (postData.userId != userFind._id) {
+          throw new Error("Not Authroized Editor_1");
         }
+        throw new Error("not authroized ");
+      }
+      if (userFind.roles == "editor2") {
+        if (postData.userId != userFind._id) {
+          throw new Error("Not Authroized Editor_2");
+        }
+        throw new Error("not authroized role");
+      }
+      throw new Error("not admin ");
     }
-    return {
-      type: data.type,
-      status: data.status,
-      message: "successfully saved",
-    };
+      const postStatus = request.status;
+      const postType = request.type;
+    
+      const postArgs = {
+        type: postType,
+        status: postStatus,
+      };
+      const data = await this.postStore.findOneDataAndUpdate(
+        {
+          _id: request.id,
+          type: request.type,
+          status: request.status,
+        },
+        { new: true }
+      );
+  
+      switch (postType) {
+        case "text":
+          try {
+            const textArgs = {
+              title: request.fields.title,
+              description: request.fields.description,
+            };
+    
+            const user = await this.postStore.findtxtdbdata({ postId: data._id });
+            const updateTextPost = await this.postStore.textPostUpd(user._id,textArgs);
+            break;
+          } catch (error) {
+            throw new Error("oops somthing went wrong while saving text");
+          }
+  
+        case "image":
+          try {
+            const imgArgs = {
+              title: request?.fields.title,
+              description: request?.fields.description,
+              imgUrl: request?.fields.imgUrl,
+            };
+            const user = await this.postStore.findimagedbdata({ postId: data._id });
+            const updateTextPost = await this.postStore.imagePostUpd(user._id,imgArgs);
+            break;
+          } catch (error) {
+            throw new Error("oops somthing went wrong while saving image");
+          }
+          
+        case "video":
+          try {
+            const videoArgs = {
+              title: request.fields.title,
+              description: request.fields.description,
+              videoUrl: request.fields.videoUrl,
+              videoType: request.fields.videoType,
+            };
+            const user = await this.postStore.findvideodbdata({ postId: data._id });
+            const updateTextPost = await this.postStore.videoPostUpd(user._id,videoArgs);
+            break;
+          } catch (error) {
+            throw new Error("oops somthing went wrong while saving video");
+          }
+      }
+      return {
+        type: data.type,
+        status: data.status,
+        message: "successfully saved",
+      };
+    }
+    catch(err){
+      return err
+    }
   }
 
   async getTimeLine(request: any) {

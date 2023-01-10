@@ -64,7 +64,6 @@ class UserServices implements IUserServices.IUserServiceAPI {
         return response;
       }
     } catch (e) {
-      console.error(e);
       response.status = STATUS_CODES.INTERNAL_SERVER_ERROR;
       response.error = toError(e.message);
       return response;
@@ -124,7 +123,6 @@ class UserServices implements IUserServices.IUserServiceAPI {
     try {
       user = await this.userStore.userRegister(attributes);
     } catch (e) {
-      console.error(e);
       response.status = STATUS_CODES.INTERNAL_SERVER_ERROR;
       response.error = toError(e.message);
       return response;
@@ -132,8 +130,6 @@ class UserServices implements IUserServices.IUserServiceAPI {
     response.status = STATUS_CODES.OK;
     response.message = "Success";
     response.user = user;
-    console.log(response, "service response");
-
     return response;
   };
 
@@ -180,7 +176,6 @@ class UserServices implements IUserServices.IUserServiceAPI {
         { emailVerified: 1 }
       );
     } catch (e) {
-      console.error(e);
       response.status = STATUS_CODES.INTERNAL_SERVER_ERROR;
       response.error = toError(e.message);
       return response;
