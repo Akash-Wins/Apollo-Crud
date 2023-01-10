@@ -5,16 +5,14 @@ class NodeMailer{
     async mails(parent,args){
         const transporter = await nodemailer.createTransport(smtpTransport({
             service:'Gmail',    
-
-            
             auth: {
-              user: "riteshpathaniawins@gmail.com",
-              pass: "cpgxpaenaraobuov",
+              user: "akashuswelwins@gmail.com",
+              pass: "tbirzhxmiyiwhyqu",
             },
           }));
           const mailOption = {
             to:args.register.email,
-            from: "riteshpathaniawins@gmail.com",
+            from: "akashuswelwins@gmail.com",
             subject: "node mailer OTP",
             html: `
       <div
@@ -34,9 +32,7 @@ class NodeMailer{
                 
               }
               
-            } )
-        //  const otp = args.system.otp
-         
+            } )  
     }
 }
 
